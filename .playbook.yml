@@ -5,4 +5,4 @@
   connection: local
   tasks:
     - name: CF Push downloaded build
-      shell: "cf push -f manifest.yml -u none --random-route"
+      shell: "cf push -f manifest.yml -u none --hostname test-php-rak"
