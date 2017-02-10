@@ -7,4 +7,5 @@ s3
 .tarignore
 manifest.yml
 setup_tools
+ansible-elastic-beanstalk
 _*.sh
