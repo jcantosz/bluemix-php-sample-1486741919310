@@ -24,7 +24,7 @@
         path: "{{ pwd }}/s3"
         state: directory
     - name: Create Archive
-      shell: "tar -cvzf {{pwd}}/s3/{{app_hostname}}.tar  ."
+      shell: "tar -cvzf {{pwd}}/s3/{{app_hostname}}.tar -X .tarignore ."
 
     # ansible s3 docs: http://docs.ansible.com/ansible/s3_module.html
     - name: Store Artifacts in S3
