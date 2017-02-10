@@ -32,6 +32,6 @@
         mode: put
         bucket: "{{ s3_bucket }}"
         src: "{{pwd}}/s3/{{app_hostname}}.tar"
-        object: "{{app_hostname}}.tar"
+        #object: "{{app_hostname}}.tar"
         #aws_access_key: "{{ aws_access_key }}"
         #aws_secret_key: "{{ aws_secret_key }}"
