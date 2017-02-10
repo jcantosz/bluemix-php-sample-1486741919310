@@ -6,8 +6,32 @@
   vars:
     pipeline_id: "{{ lookup('env','PIPELINE_ID') | default('test-php-sample-1',true) }}"
     app_hostname: "{{ lookup('env','APP_HOSTNAME') | default(pipeline_id,true) }}"
+    pwd: "{{ lookup('env', 'PWD') }}"
+    s3_bucket: "{{ lookup('env', 'S3_BUCKET')  }}"
+    #aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    #aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+    # AWS_ACCESS_KEY && AWS_SECRET_KEY
   tasks:
-    - debug:
+    - name: debug
+      debug:
         var: app_hostname
-    - name: CF Push Application
-      shell: "cf push -f manifest.yml -u none --hostname {{ app_hostname }}"
+    - name: debug2
+      debug:
+
+    # Create archive for S3
+    - name: Create Directory
+      file:
+        path: "{{ pwd }}/s3"
+        state: directory
+    - name: Create Archive
+      shell: "tar -cvzf {{pwd}}/s3/{{app_hostname}}.tar  ."
+
+    # ansible s3 docs: http://docs.ansible.com/ansible/s3_module.html
+    - name: Store Artifacts in S3
+      s3:
+        mode: put
+        bucket: "{{ s3_bucket }}"
+        src: "{{pwd}}/s3/{{app_hostname}}.tar"
+        object: "{{app_hostname}}.tar"
+        #aws_access_key: "{{ aws_access_key }}"
+        #aws_secret_key: "{{ aws_secret_key }}"
