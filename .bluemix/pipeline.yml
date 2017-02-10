@@ -49,7 +49,8 @@ stages:
       space: ${PROD_SPACE_NAME}
       application: Pipeline
     script: "#!/bin/bash\n\necho \"Install Ansible\"\nsetup_tools/install_ansible.sh\
-      \ \n\necho \"Run Ansible playbook\"\nansible-playbook .playbook.yml\n\necho \"Ansible playbook complete\"\n"
+      \ \n\necho \"Install elastic-beanstalk library\"\ngit clone https://github.com/jcantosz/ansible-elastic-beanstalk\
+      \ \n\necho \"Run Ansible playbook\"\nansible-playbook --module-path=./ansible-elastic-beanstalk/library/ .playbook.yml\n\necho \"Ansible playbook complete\"\n"
 hooks:
 - enabled: true
   label: null
