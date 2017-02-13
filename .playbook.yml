@@ -27,11 +27,17 @@
       shell: "tar -cvzf {{pwd}}/s3/{{app_hostname}}.tar -X .tarignore ."
 
     # ansible s3 docs: http://docs.ansible.com/ansible/s3_module.html
-    - name: Store Artifacts in S3
-      s3:
-        mode: put
-        bucket: "{{ s3_bucket }}"
-        src: "{{pwd}}/s3/{{app_hostname}}.tar"
-        object: "{{app_hostname}}.tar"
+    - name: list apps
+      elasticbeanstalk_version:
+        app_name: test-app
+        state: list
+        region: us-west-2
+
+#    - name: Store Artifacts in S3
+#      s3:
+#        mode: put
+#        bucket: "{{ s3_bucket }}"
+#        src: "{{pwd}}/s3/{{app_hostname}}.tar"
+#        object: "{{app_hostname}}.tar"
         #aws_access_key: "{{ aws_access_key }}"
         #aws_secret_key: "{{ aws_secret_key }}"
