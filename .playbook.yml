@@ -39,6 +39,7 @@
     - name: push to s3
       s3:
         mode: put
+        region: us-west-2
         bucket: "{{ s3_bucket }}"
         src: "{{pwd}}/s3/{{app_hostname}}.zip"
         object: "{{app_hostname}}.zip"
