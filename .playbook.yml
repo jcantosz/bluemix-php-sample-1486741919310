@@ -34,7 +34,7 @@
         state: list
         region: us-west-2
     - name: upload version
-        elasticbeanstalk_version:
+      elasticbeanstalk_version:
         region: us-west-2
         app_name: "{{ app_hostname }}"
         version_label: "{{ date }}"
