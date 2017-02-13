@@ -4,6 +4,7 @@
   hosts: localhost
   connection: local
   vars:
+    date: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S%Z')  }}"
     pipeline_id: "{{ lookup('env','PIPELINE_ID') | default('test-php-sample-1',true) }}"
     app_hostname: "{{ lookup('env','APP_HOSTNAME') | default(pipeline_id,true) }}"
     pwd: "{{ lookup('env', 'PWD') }}"
@@ -32,6 +33,15 @@
         app_name: test-app
         state: list
         region: us-west-2
+    - name: upload version
+        elasticbeanstalk_version:
+        region: us-west-2
+        app_name: "{{ app_hostname }}"
+        version_label: "{{ date }}"
+        s3_bucket: "{{ s3_bucket }}"
+        s3_key: "{{pwd}}/s3/{{app_hostname}}.tar"
+        state: present
+      register: version
 
 #    - name: Store Artifacts in S3
 #      s3:
