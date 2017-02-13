@@ -8,34 +8,23 @@
     app_hostname: "{{ lookup('env','APP_HOSTNAME') | default(pipeline_id,true) }}"
     pwd: "{{ lookup('env', 'PWD') }}"
     s3_bucket: "{{ lookup('env', 'S3_BUCKET')  }}"
-    #aws_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
-    #aws_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
-    # AWS_ACCESS_KEY && AWS_SECRET_KEY
+
   tasks:
+    # Store datetime for version info
     - name: set fact
       set_fact: date="{{ lookup('pipe', 'date +%Y%m%d-%H%M%S%Z')  }}"
-    - name: debug
-      debug:
-        var: app_hostname
-    - name: debug2
-      debug:
 
-    # Create archive for S3
+    # Create a directory for the archive
     - name: Create Directory
       file:
         path: "{{ pwd }}/s3"
         state: directory
-    #- name: Create Archive
-    #  shell: "tar -cvzf {{pwd}}/s3/{{app_hostname}}.tar -X .tarignore ."
-    # AWS does not support tar, must hack in exclude-from file command
+
+    # Create a zip archive (elasticbeanstalk only supports zips and jars currently)
     - name: Create zip archive
       shell: "zip -r {{pwd}}/s3/{{app_hostname}}.zip . -x s3\\* .bluemix\\* .git\\* ansible-elastic-beanstalk\\* setup_tools\\* .playbook.* .gitignore .cfignore .tarignore manifest.yml _*.sh"
+
     # ansible s3 docs: http://docs.ansible.com/ansible/s3_module.html
-    - name: list apps
-      elasticbeanstalk_version:
-        app_name: test-app
-        state: list
-        region: us-west-2
     - name: push to s3
       s3:
         mode: put
@@ -43,13 +32,17 @@
         bucket: "{{ s3_bucket }}"
         src: "{{pwd}}/s3/{{app_hostname}}.zip"
         object: "{{app_hostname}}.zip"
+
+    # Create beanstalk app
     - name: Create Elastic Beanstalk application
       elasticbeanstalk_app:
         region: us-west-2
         app_name: "{{ app_hostname }}"
         state: present
       register: app
-    - name: upload version
+
+    # Connect to s3 bucket version
+    - name: Link uploaded version
       elasticbeanstalk_version:
         region: us-west-2
         app_name: "{{ app_hostname }}"
@@ -59,6 +52,7 @@
         state: present
       register: version
 
+    # Create the environment
     - name: Create app env
       elasticbeanstalk_env:
         region: us-west-2
@@ -66,20 +60,4 @@
         env_name: "{{ app_hostname }}-env"
         version_label: "{{ date }}"
         solution_stack_name: "64bit Amazon Linux 2016.09 v2.3.1 running PHP 5.5"
-        option_settings:
-          - Namespace: aws:elasticbeanstalk:application:environment
-            OptionName: PARAM1
-            Value: bar
-          - Namespace: aws:elasticbeanstalk:application:environment
-            OptionName: PARAM2
-            Value: foobar
       register: env
-#    - name: Store Artifacts in S3
-#      s3:
-#        mode: put
-#        bucket: "{{ s3_bucket }}"
-#        src: "{{pwd}}/s3/{{app_hostname}}.tar"
-#        object: "{{app_hostname}}.tar"
-        #aws_access_key: "{{ aws_access_key }}"
-        #aws_secret_key: "{{ aws_secret_key }}"
-                                                       
