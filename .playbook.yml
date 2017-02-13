@@ -8,6 +8,7 @@
     app_hostname: "{{ lookup('env','APP_HOSTNAME') | default(pipeline_id,true) }}"
     pwd: "{{ lookup('env', 'PWD') }}"
     s3_bucket: "{{ lookup('env', 'S3_BUCKET')  }}"
+    region: "{{ lookup('env', 'AWS_DEFAULT_REGION') | default('us-west-2', true) }}"
 
   tasks:
     # Store datetime for version info
@@ -25,10 +26,11 @@
       shell: "zip -r {{pwd}}/s3/{{app_hostname}}.zip . -x s3\\* .bluemix\\* .git\\* ansible-elastic-beanstalk\\* setup_tools\\* .playbook.* .gitignore .cfignore .tarignore manifest.yml _*.sh"
 
     # ansible s3 docs: http://docs.ansible.com/ansible/s3_module.html
+    # for versioning, can enable versioning in bucket and use version: {{ date }} value or set object to {{app_hostname}}-{{date}}.zip
     - name: push to s3
       s3:
         mode: put
-        region: us-west-2
+        region: "{{ region }}"
         bucket: "{{ s3_bucket }}"
         src: "{{pwd}}/s3/{{app_hostname}}.zip"
         object: "{{app_hostname}}.zip"
@@ -36,7 +38,7 @@
     # Create beanstalk app
     - name: Create Elastic Beanstalk application
       elasticbeanstalk_app:
-        region: us-west-2
+        region: "{{ region }}"
         app_name: "{{ app_hostname }}"
         state: present
       register: app
@@ -44,7 +46,7 @@
     # Connect to s3 bucket version
     - name: Link uploaded version
       elasticbeanstalk_version:
-        region: us-west-2
+        region: "{{ region }}"
         app_name: "{{ app_hostname }}"
         version_label: "{{ date }}"
         s3_bucket: "{{ s3_bucket  }}"
@@ -55,7 +57,7 @@
     # Create the environment
     - name: Create app env
       elasticbeanstalk_env:
-        region: us-west-2
+        region: "{{ region }}"
         app_name: "{{ app_hostname }}"
         env_name: "{{ app_hostname }}-env"
         version_label: "{{ date }}"
