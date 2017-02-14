@@ -19,7 +19,7 @@
     # Create information for archive zip
     - name: Create zip information
       set_fact:
-        zip_filename: "{{ app_name }}_{{ version }}.zip "
+        zip_filename: "{{ app_name }}_{{ version }}.zip"
         zip_dir: "{{ lookup('env', 'PWD') }}/s3"
 
     # Create a directory for the archive
@@ -56,8 +56,8 @@
         region: "{{ region }}"
         app_name: "{{ app_name }}"
         version_label: "{{ version }}"
-        s3_bucket: "{{ s3_bucket  }}"
-        s3_key: "{{zip_filename}}"
+        s3_bucket: "{{ s3_bucket }}"
+        s3_key: "{{ zip_filename }}"
         state: present
       register: version
 
