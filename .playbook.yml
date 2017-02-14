@@ -48,7 +48,7 @@
         region: "{{ region }}"
         app_name: "{{ app_name }}"
         state: present
-      register: app
+      register: app_output
 
     # Connect to s3 bucket version
     - name: Link uploaded version
@@ -59,7 +59,7 @@
         s3_bucket: "{{ s3_bucket }}"
         s3_key: "{{ zip_filename }}"
         state: present
-      register: version
+      register: version_output
 
     # Create the environment
     - name: Create app env
@@ -69,5 +69,5 @@
         env_name: "{{ app_name }}-env"
         version_label: "{{ version }}"
         solution_stack_name: "{{ solution_stack_name }}"
-      register: env
+      register: env_output
 
