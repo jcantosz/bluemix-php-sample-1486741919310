@@ -4,7 +4,6 @@
   hosts: localhost
   connection: local
   vars:
-    pwd: "{{ lookup('env', 'PWD') }}"
     pipeline_id: "{{ lookup('env','PIPELINE_ID') | default('test-php-sample-1',true) }}"
     app_name: "{{ lookup('env','APP_NAME') | default(pipeline_id,true) }}"
     s3_bucket: "{{ lookup('env', 'S3_BUCKET') | default(app_name,true) }}"
@@ -13,11 +12,14 @@
 
   tasks:
     # Store datetime for version info
-    - name: set fact
+    - name: Create version string
       set_fact: 
         version: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S%Z')  }}"
+
+    # Create information for archive zip
+    - name: Create zip information
         zip_filename: "{{ app_name }}_{{ version }}.zip "
-        zip_dir: "{{ pwd }}/s3"
+        zip_dir: "{{ lookup('env', 'PWD') }}/s3"
 
     # Create a directory for the archive
     - name: Create Directory
